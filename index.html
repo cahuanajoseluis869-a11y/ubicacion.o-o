@@ -1,0 +1,14 @@
+<button onclick="ubicar()">Compartir mi ubicación</button>
+<p id="salida"></p>
+
+<script>
+function ubicar() {
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      const url = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+      salida.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+    },
+    () => salida.textContent = "No se pudo obtener la ubicación (¿diste permiso?)"
+  );
+}
+</script>
